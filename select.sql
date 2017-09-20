@@ -7,3 +7,4 @@
 USE parceLogSql;
 SELECT * FROM LogTable;
 SELECT * FROM RawFileData;
+SELECT * FROM SessionIdTable;

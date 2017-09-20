@@ -17,5 +17,10 @@ CREATE TABLE LogTable (LogDate 		DATE,
 
 DROP TABLE RawFileData;
 CREATE TABLE RawFileData (LineRead BOOL,
-						  FileName VARCHAR(50),
-						  FileLine VARCHAR(1100));
+						  SessionId INT,
+						  FileType VARCHAR(50),
+						  FileLine VARCHAR(2000));
+
+DROP TABLE SessionIdTable;
+CREATE TABLE SessionIdTable (SessionType VARCHAR(30),
+							 NextSessionId INT);						  
