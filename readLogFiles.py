@@ -3,7 +3,8 @@
 
 # Læser de logfiler der skal overvåges ind i SQL RawFileData tabellen.
 import parcelLogSqlFunc
-filesearchpath     = '/var/log/apache2/access*'
+fileType            = 'apache2'
+filesearchpath      = '/var/log/apache2/access*'
 
 # Main code
 
@@ -15,8 +16,6 @@ fileNames = parcelLogSqlFunc.getFileList(filesearchpath)
 # Delete the RawDataTable
 # parcelLogSqlFunc.sqlDeleteRawFileData()
 
-nextSessionId = parcelLogSqlFunc.sqlGetNextSessionId("RawFileData")
-
 # Read all data from logfiles.
 for fileName in fileNames:
     print fileName
@@ -24,8 +23,10 @@ for fileName in fileNames:
     if fileName.find(".gz") > 0:
         dataLines = parcelLogSqlFunc.readFileGz(fileName)
         if len(dataLines) > 0:
-            parcelLogSqlFunc.sqlSaveArrayToRawFileData(nextSessionId,"apache2",dataLines)
+            nextSessionId = parcelLogSqlFunc.sqlGetNextSessionId("RawFileData")
+            parcelLogSqlFunc.sqlSaveArrayToRawFileData(nextSessionId,fileType,dataLines)
     else:
         dataLines = parcelLogSqlFunc.readFile(fileName)
         if len(dataLines) > 0:
-            parcelLogSqlFunc.sqlSaveArrayToRawFileData(nextSessionId,"apache2",dataLines)
+            nextSessionId = parcelLogSqlFunc.sqlGetNextSessionId("RawFileData")
+            parcelLogSqlFunc.sqlSaveArrayToRawFileData(nextSessionId,fileType,dataLines)

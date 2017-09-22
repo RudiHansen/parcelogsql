@@ -7,6 +7,7 @@
 import mysql.connector
 import glob
 import gzip
+from datetime import datetime, timedelta
 
 # Function definition is here
 def getFileList(filepath):
@@ -104,3 +105,88 @@ def sqlGetNextSessionId(sessionType):
     cursor.close()
     cnx.close()    
     return nextSessionId
+
+def sqlRawFileData_getSessionId(fileType):
+    sessionId = 0
+    cnx = mysql.connector.connect(user='parcelog', database='parceLogSql')
+    cursor = cnx.cursor()
+    
+    query = ("SELECT SessionId from RawFileData WHERE FileType = '%s' AND LineRead = 0 ORDER BY SessionId DESC LIMIT 1"%fileType)
+
+    cursor.execute(query)
+
+    data = cursor.fetchone()
+    if data:
+        sessionId = data[0]
+        
+    cursor.close()
+    cnx.close()    
+    return sessionId
+
+def sqlRawFileData_getNewLines(fileType,sessionId):
+    cnx = mysql.connector.connect(user='parcelog', database='parceLogSql')
+    cursor = cnx.cursor()
+    
+    query = ("SELECT FileLine from RawFileData WHERE FileType = '%s' AND SessionId = %s AND LineRead = 0"%(fileType,sessionId))
+    cursor.execute(query)
+    data = cursor.fetchall()
+    
+    #query = ("UPDATE RawFileData SET LineRead = 1 WHERE FileType = '%s' AND SessionId = %s AND LineRead = 0"%(fileType,sessionId))
+    #cursor.execute(query)
+    cnx.commit()
+    cursor.close()
+    cnx.close()    
+    return data
+
+def sqlGetIpWhoIsCache(ipAddress):
+    cnx = mysql.connector.connect(user='parcelog', database='parceLogSql')
+    cursor = cnx.cursor()
+    cacheDate = datetime.today() - timedelta(days=7) 
+
+    query = ("SELECT Country, WhoIS from IpWhoIsCache WHERE IpAddress = '%s' AND CacheDate >= '%s'"%(ipAddress,cacheDate.strftime('%Y-%m-%d %H:%M:%S')))
+    cursor.execute(query)
+
+    data = cursor.fetchone()
+    
+    cursor.close()
+    cnx.close()    
+    return data
+    
+def sqlSaveWhoIdCache(ipAddress,country,whoIs):
+    cnx = mysql.connector.connect(user='parcelog', database='parceLogSql')
+    cursor = cnx.cursor()
+    cacheDate = datetime.today()
+
+    if(len(whoIs) > 70):
+        print ("SQL PROBLEM length of WhoId exceeds 70 chars it is %s chars long"%len(whoIs))
+        print whoIs
+        return ""
+
+    query = ("INSERT INTO IpWhoIsCache (CacheDate, Country, WhoIS, IpAddress) "
+             "VALUES ('%s','%s','%s','%s')"%(cacheDate.strftime('%Y-%m-%d %H:%M:%S'),country,whoIs,ipAddress))
+    cursor.execute(query)
+
+    cnx.commit()
+    cursor.close()
+    cnx.close()    
+
+def sqlSaveLogTable(date,time,timeZone,fileName,ipAddress,country,whoIs):
+    cnx = mysql.connector.connect(user='parcelog', database='parceLogSql')
+    cursor = cnx.cursor()
+    cacheDate = datetime.today()
+    fileName = fileName.replace("'", "")
+    query = ("INSERT IGNORE INTO LogTable (LogDate, TimeZone, Country, WhoIS, IpAddress, FileName) "
+             "VALUES ('%s %s','%s','%s','%s','%s','%s')"%(date,time,timeZone,country,whoIs,ipAddress,fileName))
+
+    try:
+        cursor.execute(query)
+    except Exception as e:
+        print query
+        raise        
+        quit()
+
+
+    cnx.commit()
+    cursor.close()
+    cnx.close()    
+    

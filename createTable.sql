@@ -5,14 +5,21 @@
 *Version.: 1.00
 **************************************/
 USE parceLogSql;
+
 DROP TABLE LogTable;
-CREATE TABLE LogTable (LogDate 		DATE, 
-					   LogTime 		TIME, 
+CREATE TABLE LogTable (LogDate 		DATETIME, 
 					   TimeZone 	VARCHAR(5), 
 					   Country 		VARCHAR(30), 
-					   WhoIS 		VARCHAR(30), 
+					   WhoIS 		VARCHAR(100), 
 					   IpAddress 	VARCHAR(30),
-					   FileName		VARCHAR(255));
+					   FileName		VARCHAR(255),
+                       PRIMARY KEY ( LogDate,IpAddress,FileName ));
+
+DROP TABLE IpWhoIsCache;
+CREATE TABLE IpWhoIsCache (CacheDate    DATETIME, 
+                           Country 		VARCHAR(30), 
+                           WhoIS 		VARCHAR(100), 
+                           IpAddress 	VARCHAR(30));
 
 
 DROP TABLE RawFileData;
@@ -23,4 +30,6 @@ CREATE TABLE RawFileData (LineRead BOOL,
 
 DROP TABLE SessionIdTable;
 CREATE TABLE SessionIdTable (SessionType VARCHAR(30),
-							 NextSessionId INT);						  
+							 NextSessionId INT);
+
+                             
