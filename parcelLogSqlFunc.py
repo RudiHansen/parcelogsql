@@ -83,6 +83,7 @@ def sqlDeleteRawFileData():
     return ""
 
 def sqlGetNextSessionId(sessionType):
+    timerStart = datetime.now()
     nextSessionId = 1;
     cnx = mysql.connector.connect(user='parcelog', database='parceLogSql')
     cursor = cnx.cursor()
@@ -104,14 +105,18 @@ def sqlGetNextSessionId(sessionType):
     cnx.commit()
     cursor.close()
     cnx.close()    
+    timerEnd = datetime.now()
+    with open("Output.txt", "a") as text_file:
+        text_file.write("{0} GetNextSessionId {1}\n".format((timerEnd-timerStart),nextSessionId))
     return nextSessionId
 
 def sqlRawFileData_getSessionId(fileType):
+    timerStart = datetime.now()
     sessionId = 0
     cnx = mysql.connector.connect(user='parcelog', database='parceLogSql')
     cursor = cnx.cursor()
     
-    query = ("SELECT SessionId from RawFileData WHERE FileType = '%s' AND LineRead = 0 ORDER BY SessionId DESC LIMIT 1"%fileType)
+    query = ("SELECT SessionId from RawFileData WHERE FileType = '%s' AND LineRead = 0 ORDER BY SessionId LIMIT 1"%fileType)
 
     cursor.execute(query)
 
@@ -121,9 +126,13 @@ def sqlRawFileData_getSessionId(fileType):
         
     cursor.close()
     cnx.close()    
+    timerEnd = datetime.now()
+    with open("Output.txt", "a") as text_file:
+        text_file.write("{0} sqlRawFileData_getSessionId {1}\n".format((timerEnd-timerStart),fileType))
     return sessionId
 
 def sqlRawFileData_getNewLines(fileType,sessionId):
+    timerStart = datetime.now()
     cnx = mysql.connector.connect(user='parcelog', database='parceLogSql')
     cursor = cnx.cursor()
     
@@ -131,14 +140,18 @@ def sqlRawFileData_getNewLines(fileType,sessionId):
     cursor.execute(query)
     data = cursor.fetchall()
     
-    #query = ("UPDATE RawFileData SET LineRead = 1 WHERE FileType = '%s' AND SessionId = %s AND LineRead = 0"%(fileType,sessionId))
-    #cursor.execute(query)
+    query = ("UPDATE RawFileData SET LineRead = 1 WHERE FileType = '%s' AND SessionId = %s AND LineRead = 0"%(fileType,sessionId))
+    cursor.execute(query)
     cnx.commit()
     cursor.close()
     cnx.close()    
+    timerEnd = datetime.now()
+    with open("Output.txt", "a") as text_file:
+        text_file.write("{0} sqlRawFileData_getNewLines {1}\n".format((timerEnd-timerStart),sessionId))
     return data
 
 def sqlGetIpWhoIsCache(ipAddress):
+    timerStart = datetime.now()
     cnx = mysql.connector.connect(user='parcelog', database='parceLogSql')
     cursor = cnx.cursor()
     cacheDate = datetime.today() - timedelta(days=7) 
@@ -150,9 +163,13 @@ def sqlGetIpWhoIsCache(ipAddress):
     
     cursor.close()
     cnx.close()    
+    timerEnd = datetime.now()
+    with open("Output.txt", "a") as text_file:
+        text_file.write("{0} sqlGetIpWhoIsCache {1}\n".format((timerEnd-timerStart),ipAddress))
     return data
     
 def sqlSaveWhoIdCache(ipAddress,country,whoIs):
+    timerStart = datetime.now()
     cnx = mysql.connector.connect(user='parcelog', database='parceLogSql')
     cursor = cnx.cursor()
     cacheDate = datetime.today()
@@ -169,8 +186,12 @@ def sqlSaveWhoIdCache(ipAddress,country,whoIs):
     cnx.commit()
     cursor.close()
     cnx.close()    
+    timerEnd = datetime.now()
+    with open("Output.txt", "a") as text_file:
+        text_file.write("{0} sqlSaveWhoIdCache {1}\n".format((timerEnd-timerStart),ipAddress))
 
 def sqlSaveLogTable(date,time,timeZone,fileName,ipAddress,country,whoIs):
+    timerStart = datetime.now()
     cnx = mysql.connector.connect(user='parcelog', database='parceLogSql')
     cursor = cnx.cursor()
     cacheDate = datetime.today()
@@ -189,4 +210,6 @@ def sqlSaveLogTable(date,time,timeZone,fileName,ipAddress,country,whoIs):
     cnx.commit()
     cursor.close()
     cnx.close()    
-    
+    timerEnd = datetime.now()
+    with open("Output.txt", "a") as text_file:
+        text_file.write("{0} sqlSaveLogTable {1}\n".format((timerEnd-timerStart),ipAddress))

@@ -22,6 +22,7 @@ CREATE TABLE IpWhoIsCache (CacheDate    DATETIME,
                            IpAddress 	VARCHAR(30));
 
 
+/*
 DROP TABLE RawFileData;
 CREATE TABLE RawFileData (LineRead BOOL,
 						  SessionId INT,
@@ -31,5 +32,5 @@ CREATE TABLE RawFileData (LineRead BOOL,
 DROP TABLE SessionIdTable;
 CREATE TABLE SessionIdTable (SessionType VARCHAR(30),
 							 NextSessionId INT);
-
+*/
                              
