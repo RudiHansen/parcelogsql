@@ -6,6 +6,7 @@
 **************************************/
 USE parceLogSql;
 
+/*
 DROP TABLE LogTable;
 CREATE TABLE LogTable (LogDate 		DATETIME, 
 					   TimeZone 	VARCHAR(5), 
@@ -13,8 +14,19 @@ CREATE TABLE LogTable (LogDate 		DATETIME,
 					   WhoIS 		VARCHAR(100), 
 					   IpAddress 	VARCHAR(30),
 					   FileName		VARCHAR(255),
+                       LogLine      VARCHAR(2000),
                        PRIMARY KEY ( LogDate,IpAddress,FileName ));
 
+DROP TABLE LogTableBackup;
+CREATE TABLE LogTableBackup (LogDate 		DATETIME, 
+					         TimeZone 	    VARCHAR(5), 
+					         Country 		VARCHAR(30), 
+					         WhoIS 		    VARCHAR(100), 
+					         IpAddress 	    VARCHAR(30),
+					         FileName		VARCHAR(255),
+                             LogLine        VARCHAR(2000),
+                             PRIMARY KEY ( LogDate,IpAddress,FileName ));
+                             
 DROP TABLE IpWhoIsCache;
 CREATE TABLE IpWhoIsCache (CacheDate    DATETIME, 
                            Country 		VARCHAR(30), 
@@ -22,7 +34,6 @@ CREATE TABLE IpWhoIsCache (CacheDate    DATETIME,
                            IpAddress 	VARCHAR(30));
 
 
-/*
 DROP TABLE RawFileData;
 CREATE TABLE RawFileData (LineRead BOOL,
 						  SessionId INT,
@@ -33,4 +44,3 @@ DROP TABLE SessionIdTable;
 CREATE TABLE SessionIdTable (SessionType VARCHAR(30),
 							 NextSessionId INT);
 */
-                             

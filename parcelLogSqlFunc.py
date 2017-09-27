@@ -4,6 +4,7 @@
 # Beskrivelse af hvad koden gør.
 # 
 
+import parcelLogGetFieldFunc
 import mysql.connector
 import glob
 import gzip
@@ -42,14 +43,19 @@ def getFileName( line ):
     return retStr
 
 def sqlSaveArrayToRawFileData(nextSessionId,fileType,array):
+    lastReadDate = sqlGetLastReadDate()
     for line in array:
-        if len(line) > 2000:
-            print fileName
-            print line
-            print len(line)
-            raw_input("Press Enter to continue...")
-        else:
-            sqlInsertRawFileData(nextSessionId,fileType,line)
+        date     = parcelLogGetFieldFunc.getDate(line)
+        time     = parcelLogGetFieldFunc.getTime(line)
+        dateTime = datetime.strptime((date + " " + time), '%Y/%m/%d %H:%M:%S')
+        if dateTime > lastReadDate:
+            if len(line) > 2000:
+                print fileName
+                print line
+                print len(line)
+                raw_input("Press Enter to continue...")
+            else:
+                sqlInsertRawFileData(nextSessionId,fileType,line)
     
 def sqlInsertRawFileData(nextSessionId,fileType,fileLine):
     cnx = mysql.connector.connect(user='parcelog', database='parceLogSql')
@@ -67,6 +73,23 @@ def sqlInsertRawFileData(nextSessionId,fileType,fileLine):
     cnx.close()
     return ""
 	
+def sqlGetLastReadDate():
+    lastReadDate = datetime(1, 1, 1, 0, 0)
+    cnx = mysql.connector.connect(user='parcelog', database='parceLogSql')
+    cursor = cnx.cursor()
+
+    query = ("SELECT LogDate from LogTable ORDER BY LogDate DESC LIMIT 1")
+
+    cursor.execute(query)
+
+    data = cursor.fetchone()
+    if data:
+        lastReadDate = data[0]
+
+    cursor.close()
+    cnx.close()    
+    return lastReadDate - timedelta(minutes=5) 
+
 def sqlDeleteRawFileData():
     cnx = mysql.connector.connect(user='parcelog', database='parceLogSql')
     cursor = cnx.cursor()
@@ -106,7 +129,7 @@ def sqlGetNextSessionId(sessionType):
     cursor.close()
     cnx.close()    
     timerEnd = datetime.now()
-    with open("Output.txt", "a") as text_file:
+    with open("output.txt", "a") as text_file:
         text_file.write("{0} GetNextSessionId {1}\n".format((timerEnd-timerStart),nextSessionId))
     return nextSessionId
 
@@ -127,7 +150,7 @@ def sqlRawFileData_getSessionId(fileType):
     cursor.close()
     cnx.close()    
     timerEnd = datetime.now()
-    with open("Output.txt", "a") as text_file:
+    with open("output.txt", "a") as text_file:
         text_file.write("{0} sqlRawFileData_getSessionId {1}\n".format((timerEnd-timerStart),fileType))
     return sessionId
 
@@ -146,7 +169,7 @@ def sqlRawFileData_getNewLines(fileType,sessionId):
     cursor.close()
     cnx.close()    
     timerEnd = datetime.now()
-    with open("Output.txt", "a") as text_file:
+    with open("output.txt", "a") as text_file:
         text_file.write("{0} sqlRawFileData_getNewLines {1}\n".format((timerEnd-timerStart),sessionId))
     return data
 
@@ -164,7 +187,7 @@ def sqlGetIpWhoIsCache(ipAddress):
     cursor.close()
     cnx.close()    
     timerEnd = datetime.now()
-    with open("Output.txt", "a") as text_file:
+    with open("output.txt", "a") as text_file:
         text_file.write("{0} sqlGetIpWhoIsCache {1}\n".format((timerEnd-timerStart),ipAddress))
     return data
     
@@ -187,17 +210,18 @@ def sqlSaveWhoIdCache(ipAddress,country,whoIs):
     cursor.close()
     cnx.close()    
     timerEnd = datetime.now()
-    with open("Output.txt", "a") as text_file:
+    with open("output.txt", "a") as text_file:
         text_file.write("{0} sqlSaveWhoIdCache {1}\n".format((timerEnd-timerStart),ipAddress))
 
-def sqlSaveLogTable(date,time,timeZone,fileName,ipAddress,country,whoIs):
+def sqlSaveLogTable(date,time,timeZone,fileName,ipAddress,country,whoIs,logLine):
     timerStart = datetime.now()
     cnx = mysql.connector.connect(user='parcelog', database='parceLogSql')
     cursor = cnx.cursor()
     cacheDate = datetime.today()
     fileName = fileName.replace("'", "")
-    query = ("INSERT IGNORE INTO LogTable (LogDate, TimeZone, Country, WhoIS, IpAddress, FileName) "
-             "VALUES ('%s %s','%s','%s','%s','%s','%s')"%(date,time,timeZone,country,whoIs,ipAddress,fileName))
+    logLine  = logLine.replace("'", "")
+    query = ("INSERT IGNORE INTO LogTable (LogDate, TimeZone, Country, WhoIS, IpAddress, FileName, LogLine) "
+             "VALUES ('%s %s','%s','%s','%s','%s','%s','%s')"%(date,time,timeZone,country,whoIs,ipAddress,fileName,logLine))
 
     try:
         cursor.execute(query)
@@ -211,5 +235,5 @@ def sqlSaveLogTable(date,time,timeZone,fileName,ipAddress,country,whoIs):
     cursor.close()
     cnx.close()    
     timerEnd = datetime.now()
-    with open("Output.txt", "a") as text_file:
+    with open("output.txt", "a") as text_file:
         text_file.write("{0} sqlSaveLogTable {1}\n".format((timerEnd-timerStart),ipAddress))
