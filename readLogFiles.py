@@ -18,7 +18,6 @@ fileNames = parcelLogSqlFunc.getFileList(filesearchpath)
 
 # Read all data from logfiles.
 for fileName in fileNames:
-    print fileName
     dataLines = []
     if fileName.find(".gz") > 0:
         dataLines = parcelLogSqlFunc.readFileGz(fileName)
