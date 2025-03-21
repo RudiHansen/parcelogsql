@@ -28,7 +28,7 @@ while(sessionId > 0):
         fileName                    = parcelLogGetFieldFunc.getFileName(logLine[0])
         ipAddress                   = parcelLogGetFieldFunc.getIp(logLine[0])
         (country,whoIs,lookUpType)  = parcelLogGetFieldFunc.getWhoIs(ipAddress)
-        if(ipAddress != "188.182.160.189" and ipAddress != "127.0.0.1" and ipAddress != "192.168.0.1"):
+        if(ipAddress != "127.0.0.1" and ipAddress != "192.168.0.1"):
             parcelLogSqlFunc.sqlSaveLogTable(date,time,timeZone,fileName,ipAddress,country,whoIs,logLine[0])
             newLines = newLines + 1
 
