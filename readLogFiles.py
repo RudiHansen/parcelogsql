@@ -3,9 +3,10 @@
 
 # Læser de logfiler der skal overvåges ind i SQL RawFileData tabellen.
 import parcelLogSqlFunc
+from datetime import datetime
 fileType            = 'apache2'
 filesearchpath      = '/var/log/apache2/access*'
-
+print ("Start readLogFiles {0}".format(datetime.now()))
 # Main code
 
 # Get all fileNames to read
@@ -19,6 +20,7 @@ fileNames = parcelLogSqlFunc.getFileList(filesearchpath)
 # Read all data from logfiles.
 for fileName in fileNames:
     dataLines = []
+    print("Read file {0}".format(fileName))
     if fileName.find(".gz") > 0:
         dataLines = parcelLogSqlFunc.readFileGz(fileName)
         if len(dataLines) > 0:
@@ -29,3 +31,5 @@ for fileName in fileNames:
         if len(dataLines) > 0:
             nextSessionId = parcelLogSqlFunc.sqlGetNextSessionId("RawFileData")
             parcelLogSqlFunc.sqlSaveArrayToRawFileData(nextSessionId,fileType,dataLines)
+
+print ("End readLogFiles {0}".format(datetime.now()))
