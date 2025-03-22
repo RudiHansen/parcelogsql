@@ -35,12 +35,12 @@ while(sessionId > 0):
         if(0):
             tmpStr = logLine[0]
             tmpStr = tmpStr.replace('\n', '')
-            print tmpStr
+            print (tmpStr)
             print ("Logdata - date (%s) - time (%s) - timeZone (%s) - ip (%s)"%(date,time,timeZone,ipAddress))
             print ("Logdata - filename (%s)"%fileName)
             print ("Logdata - country (%s) - whoIs (%s) - lookUpType (%s)"%(country,whoIs,lookUpType))
             print ("")
-            raw_input("Press Enter to continue...")
+
     timerEnd = datetime.now()
     print ("{0} Time for sessionId {1}".format((timerEnd-timerStart),sessionId))
     sessionId = parcelLogSqlFunc.sqlRawFileData_getSessionId(fileType)

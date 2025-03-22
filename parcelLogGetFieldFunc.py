@@ -46,14 +46,22 @@ def getTimeZone( line ):
     retStr = line[pos1:pos2]
     return retStr
 
-def getFileName( line ):
-    pos1 = line.find("GET") + 4
+def getFileName(line):
+    methods = ["GET", "POST"]  # List of HTTP methods to check
+    pos1 = -1
+    
+    for method in methods:
+        pos1 = line.find(method)
+        if pos1 != -1:  # If method is found, adjust position and break
+            pos1 += len(method) + 1
+            break
+    
     pos2 = line.find("HTTP")
-    if(pos1 > 3 and pos2 > 1):
-        retStr = line[pos1:pos2]
+    
+    if pos1 > 0 and pos2 > pos1:
+        return line[pos1:pos2].strip()
     else:
-        retStr = ""
-    return retStr
+        return ""
 
 def getIp( line ):
     pos1 = 0
